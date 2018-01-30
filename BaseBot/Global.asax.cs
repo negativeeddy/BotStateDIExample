@@ -31,7 +31,6 @@ namespace BaseBot
                                 .As<IBotDataStore<BotData>>()
                                 .AsSelf()
                                 .InstancePerLifetimeScope();
-
                         });
         }
     }
