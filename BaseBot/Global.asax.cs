@@ -1,10 +1,13 @@
 ﻿using Autofac;
+using Autofac.Integration.WebApi;
+using BaseBot.App_Start;
 using Microsoft.Bot.Builder.Azure;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Connector;
 using System;
 using System.Configuration;
+using System.Reflection;
 using System.Web.Http;
 
 namespace BaseBot
@@ -19,6 +22,8 @@ namespace BaseBot
             var key = ConfigurationManager.AppSettings["DocumentDbKey"];
             var store = new DocumentDbBotDataStore(uri, key);
 
+            var config = GlobalConfiguration.Configuration;
+
             Conversation.UpdateContainer(
                         builder =>
                         {
@@ -31,7 +36,22 @@ namespace BaseBot
                                 .As<IBotDataStore<BotData>>()
                                 .AsSelf()
                                 .InstancePerLifetimeScope();
+
+                            // Register your Web API controllers.
+                            builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+                            builder.RegisterWebApiFilterProvider(config);
+
+                            builder.RegisterModule<BotModule>();
                         });
+
+            config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
+        }
+
+        public static ILifetimeScope FindContainer()
+        {
+            var config = GlobalConfiguration.Configuration;
+            var resolver = (AutofacWebApiDependencyResolver)config.DependencyResolver;
+            return resolver.Container;
         }
     }
 }

@@ -2,7 +2,11 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
+using Autofac;
+using BaseBot.Dialogs;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Internals.Fibers;
 using Microsoft.Bot.Connector;
 
 namespace BaseBot
@@ -10,15 +14,27 @@ namespace BaseBot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
+        private readonly ILifetimeScope _scope;
+
+        public MessagesController(ILifetimeScope scope)
+        {
+            SetField.NotNull(out this._scope, nameof(_scope), scope);
+        }
+
         /// <summary>
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
         /// </summary>
+        [ResponseType(typeof(void))]
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
+                await Conversation.SendAsync(activity, () =>
+                {
+                    var dlg = _scope.Resolve<RootDialog>();
+                    return dlg;
+                });
             }
             else
             {
