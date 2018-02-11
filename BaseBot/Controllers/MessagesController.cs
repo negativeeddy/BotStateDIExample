@@ -1,11 +1,14 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Autofac;
 using BaseBot.Dialogs;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Builder.Internals.Fibers;
 using Microsoft.Bot.Connector;
 
@@ -30,11 +33,20 @@ namespace BaseBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () =>
+                using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
                 {
-                    var dlg = _scope.Resolve<RootDialog>();
-                    return dlg;
-                });
+                    // load the current botstate into scope because SendAsync creates its owns
+                    // scope and uses that internally
+                    var botState = scope.Resolve<IBotData>();
+                    await botState.LoadAsync(default(CancellationToken));
+
+                    // start the dialog
+                    await Conversation.SendAsync(activity, () =>
+                    {
+                        var dlg = scope.Resolve<RootDialog>();
+                        return dlg;
+                    });
+                }
             }
             else
             {

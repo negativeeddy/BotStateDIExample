@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using BaseBot.Services;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 
@@ -8,22 +10,28 @@ namespace BaseBot.Dialogs
     [Serializable]
     public class RootDialog : IDialog<object>
     {
-        public Task StartAsync(IDialogContext context)
+        private readonly IUserData _userData;
+
+        public RootDialog(IUserData userData)
         {
+            _userData = userData;
+        }
+
+        public async Task StartAsync(IDialogContext context)
+        {
+            await context.PostAsync($"User data starts as: {_userData.CustomData}");
             context.Wait(MessageReceivedAsync);
-            return Task.CompletedTask;
         }
 
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
 
-            // calculate something for us to return
-            int length = (activity.Text ?? string.Empty).Length;
+            await context.PostAsync($"User data was: {_userData.CustomData}");
+            _userData.CustomData = activity.Text;
+            await context.PostAsync($"User data is now: \"{_userData.CustomData}\"");
 
-            // return our reply to the user
-            await context.PostAsync($"You sent {activity.Text} which was {length} characters");
-
+            //await _userData.SaveAsync(CancellationToken.None);
             context.Wait(MessageReceivedAsync);
         }
     }
