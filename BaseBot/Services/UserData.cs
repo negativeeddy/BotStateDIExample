@@ -9,9 +9,8 @@ namespace BaseBot.Services
     public class UserData : IUserData
     {
         private readonly IBotData _botData;
-        private readonly IStateClient _stateClient;
 
-        public UserData(IBotData botData, IStateClient client)
+        public UserData(IBotData botData)
         {
             _botData = botData;
         }

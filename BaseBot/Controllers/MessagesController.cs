@@ -29,28 +29,20 @@ namespace BaseBot
         /// Receive a message from a user and reply to it
         /// </summary>
         [ResponseType(typeof(void))]
-        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+        public async Task<HttpResponseMessage> Post([FromBody]Activity toBot)
         {
-            if (activity.Type == ActivityTypes.Message)
+            if (toBot.Type == ActivityTypes.Message)
             {
-                using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
+                using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, toBot))
                 {
-                    // load the current botstate into scope because SendAsync creates its owns
-                    // scope and uses that internally
-                    var botState = scope.Resolve<IBotData>();
-                    await botState.LoadAsync(default(CancellationToken));
-
-                    // start the dialog
-                    await Conversation.SendAsync(activity, () =>
-                    {
-                        var dlg = scope.Resolve<RootDialog>();
-                        return dlg;
-                    });
+                    DialogModule_MakeRoot.Register(scope, () => scope.Resolve<IDialog<object>>());
+                    var postToBot = scope.Resolve<IPostToBot>();
+                    await postToBot.PostAsync(toBot, CancellationToken.None);
                 }
             }
             else
             {
-                HandleSystemMessage(activity);
+                HandleSystemMessage(toBot);
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;

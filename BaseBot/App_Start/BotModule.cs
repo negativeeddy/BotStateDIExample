@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using BaseBot.Dialogs;
 using BaseBot.Services;
+using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Internals.Fibers;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace BaseBot.App_Start
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<RootDialog>()
+                .As<IDialog<object>>()
                 .InstancePerDependency();
 
             builder.RegisterType<UserData>()
