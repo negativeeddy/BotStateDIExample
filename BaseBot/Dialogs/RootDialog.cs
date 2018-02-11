@@ -31,7 +31,6 @@ namespace BaseBot.Dialogs
             _userData.CustomData = activity.Text;
             await context.PostAsync($"User data is now: \"{_userData.CustomData}\"");
 
-            //await _userData.SaveAsync(CancellationToken.None);
             context.Wait(MessageReceivedAsync);
         }
     }
