@@ -14,10 +14,23 @@ namespace BaseBot.App_Start
     {
         protected override void Load(ContainerBuilder builder)
         {
+            // register the root dialog
             builder.RegisterType<RootDialog>()
                 .As<IDialog<object>>()
                 .InstancePerDependency();
 
+            // Alternative method to globally register the root dialog creation
+            // method. If the root dialog is always the same, this can be used instead
+            // of the 'makeRoot' code in MessagesController
+            //
+            // builder.Register<Func<IDialog<object>>>(c =>
+            // {
+            //     var dlg = c.Resolve<IDialog<object>>();
+            //     Func<IDialog<object>> makeRoot = () => dlg;
+            //     return makeRoot;
+            // });
+
+            // register the class which stores properties in the bot state data store
             builder.RegisterType<UserData>()
                 .Keyed<IUserData>(FiberModule.Key_DoNotSerialize)
                 .AsImplementedInterfaces()
