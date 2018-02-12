@@ -16,16 +16,13 @@ namespace BaseBot.App_Start
         {
             // register the root dialog
             builder.RegisterType<RootDialog>()
-                .As<IDialog<object>>()
                 .InstancePerDependency();
 
-            // Alternative method to globally register the root dialog creation
-            // method. If the root dialog is always the same, this can be used instead
-            // of the 'makeRoot' code in MessagesController
-            //
+            // This is an alternative method to register the root dialog creation delegate.
+            // This can be used instead of the 'makeRoot' code in MessagesController
             // builder.Register<Func<IDialog<object>>>(c =>
             // {
-            //     var dlg = c.Resolve<IDialog<object>>();
+            //     var dlg = c.Resolve<RootDialog>();
             //     Func<IDialog<object>> makeRoot = () => dlg;
             //     return makeRoot;
             // });

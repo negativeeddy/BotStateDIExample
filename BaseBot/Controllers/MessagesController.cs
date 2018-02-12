@@ -36,7 +36,7 @@ namespace BaseBot
                 using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, toBot))
                 {
                     // register the function to provide the root dialog
-                    Func<IDialog<object>> makeRoot = () => scope.Resolve<IDialog<object>>();
+                    Func<IDialog<object>> makeRoot = () => scope.Resolve<RootDialog>();
                     scope.Resolve<Func<IDialog<object>>>(TypedParameter.From(makeRoot));
 
                     // start the dialog process by posting the activity to IPostToBot in the 
