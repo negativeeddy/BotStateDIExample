@@ -1,4 +1,7 @@
 # BotState Dependency Injection Example
+
+## **NOTE:** This example is for BotFramework SDK v3. If you are using v4, see [the v4 documentation](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-state?view=azure-bot-service-4.0) instead.
+
 This project is an example of how to set up a .NET [Bot Framework](https://dev.botframework.com/) project with the following goals
 - configure the bot to [use custom state storage](https://docs.microsoft.com/en-us/bot-framework/dotnet/bot-builder-dotnet-state)
 - use dependency injection to load the dialogs & services
